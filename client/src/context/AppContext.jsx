@@ -90,6 +90,7 @@ export const AppProvider = ({ children }) => {
             localStorage.removeItem('token');
             setUser(null);
             setIsOwner(false);
+            setIsAdmin(false);
         }
     }, [token]);
 
@@ -103,6 +104,7 @@ export const AppProvider = ({ children }) => {
         token, setToken,
         getToken, logout,
         isOwner, setIsOwner,
+        isAdmin, setIsAdmin,
         axios,
         showHotelReg, setShowHotelReg,
         showLogin, setShowLogin,

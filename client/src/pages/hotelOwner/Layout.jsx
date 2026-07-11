@@ -6,13 +6,13 @@ import { useAppContext } from '../../context/AppContext'
 
 const Layout = () => {
 
-    const { isOwner, navigate } = useAppContext()
+    const { isOwner, isAdmin, navigate } = useAppContext()
 
     useEffect(() => {
-        if (!isOwner) {
+        if (!isOwner && !isAdmin) {
             navigate('/')
         }
-    }, [isOwner])
+    }, [isOwner, isAdmin])
 
     return (
         <div className='flex flex-col h-screen'>
