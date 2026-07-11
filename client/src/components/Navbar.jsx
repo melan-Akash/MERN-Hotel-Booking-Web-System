@@ -23,7 +23,7 @@ const Navbar = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const location = useLocation();
 
-    const { user, setShowHotelReg, isOwner, navigate, logout, setShowLogin } = useAppContext()
+    const { user, setShowHotelReg, isOwner, isAdmin, navigate, logout, setShowLogin } = useAppContext()
 
     useEffect(() => {
         if (location.pathname !== "/") {
@@ -68,8 +68,8 @@ const Navbar = () => {
                 ))}
                 {
                     user && (
-                        <button className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${isScrolled ? 'text-black' : 'text-white'} transition-all`} onClick={() => isOwner ? navigate('/owner') : setShowHotelReg(true)}>
-                            {isOwner ? 'Dashboard' : 'List Your Hotel'}
+                        <button className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${isScrolled ? 'text-black' : 'text-white'} transition-all`} onClick={() => (isOwner || isAdmin) ? navigate('/owner') : setShowHotelReg(true)}>
+                            {(isOwner || isAdmin) ? 'Dashboard' : 'List Your Hotel'}
                         </button>
                     )
                 }
@@ -99,17 +99,19 @@ const Navbar = () => {
                                     <p className="font-semibold text-sm text-slate-800 truncate">{user.username}</p>
                                     <p className="text-xs text-slate-500 truncate">{user.email}</p>
                                 </div>
-                                <button 
-                                    onClick={() => {
-                                        setIsDropdownOpen(false);
-                                        navigate('/my-bookings');
-                                    }} 
-                                    className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-pointer"
-                                >
-                                    <BookIcon />
-                                    My Bookings
-                                </button>
-                                {isOwner ? (
+                                {!isAdmin && (
+                                    <button 
+                                        onClick={() => {
+                                            setIsDropdownOpen(false);
+                                            navigate('/my-bookings');
+                                        }} 
+                                        className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                                    >
+                                        <BookIcon />
+                                        My Bookings
+                                    </button>
+                                )}
+                                {(isOwner || isAdmin) ? (
                                     <button 
                                         onClick={() => {
                                             setIsDropdownOpen(false);
@@ -174,16 +176,18 @@ const Navbar = () => {
                                 <div className="px-3.5 py-1.5 border-b border-slate-100">
                                     <p className="font-semibold text-xs text-slate-800 truncate">{user.username}</p>
                                 </div>
-                                <button 
-                                    onClick={() => {
-                                        setIsDropdownOpen(false);
-                                        navigate('/my-bookings');
-                                    }} 
-                                    className="w-full text-left px-3.5 py-1.5 text-xs hover:bg-slate-50 flex items-center gap-2 transition-colors cursor-pointer"
-                                >
-                                    My Bookings
-                                </button>
-                                {isOwner ? (
+                                {!isAdmin && (
+                                    <button 
+                                        onClick={() => {
+                                            setIsDropdownOpen(false);
+                                            navigate('/my-bookings');
+                                        }} 
+                                        className="w-full text-left px-3.5 py-1.5 text-xs hover:bg-slate-50 flex items-center gap-2 transition-colors cursor-pointer"
+                                    >
+                                        My Bookings
+                                    </button>
+                                )}
+                                {(isOwner || isAdmin) ? (
                                     <button 
                                         onClick={() => {
                                             setIsDropdownOpen(false);
@@ -238,11 +242,13 @@ const Navbar = () => {
 
                 {user && (
                     <>
-                        <NavLink to="/my-bookings" onClick={() => setIsMenuOpen(false)}>
-                            My Bookings
-                        </NavLink>
-                        <button className="border px-4 py-1 text-sm font-light rounded-full cursor-pointer transition-all" onClick={() => { setIsMenuOpen(false); isOwner ? navigate('/owner') : setShowHotelReg(true); }}>
-                            {isOwner ? 'Dashboard' : 'List Your Hotel'}
+                        {!isAdmin && (
+                            <NavLink to="/my-bookings" onClick={() => setIsMenuOpen(false)}>
+                                My Bookings
+                            </NavLink>
+                        )}
+                        <button className="border px-4 py-1 text-sm font-light rounded-full cursor-pointer transition-all" onClick={() => { setIsMenuOpen(false); (isOwner || isAdmin) ? navigate('/owner') : setShowHotelReg(true); }}>
+                            {(isOwner || isAdmin) ? 'Dashboard' : 'List Your Hotel'}
                         </button>
                         <button onClick={() => { setIsMenuOpen(false); logout(); }} className="bg-red-100 text-red-600 px-6 py-1.5 text-sm rounded-full cursor-pointer transition-all font-medium">
                             Logout
