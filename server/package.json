@@ -15,7 +15,6 @@
     "nodemon": "^3.1.9"
   },
   "dependencies": {
-    "@clerk/express": "^1.4.2",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.6.0",
     "cors": "^2.8.5",
@@ -25,7 +24,6 @@
     "mongoose": "^8.13.2",
     "multer": "^1.4.5-lts.2",
     "nodemailer": "^6.10.0",
-    "stripe": "^18.0.0",
-    "svix": "^1.63.1"
+    "stripe": "^18.0.0"
   }
 }
