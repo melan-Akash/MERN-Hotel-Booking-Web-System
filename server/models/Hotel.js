@@ -8,6 +8,7 @@ const hotelSchema = new Schema(
     contact: { type: String, required: true },
     owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
     city: { type: String, required: true },
+    isApproved: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

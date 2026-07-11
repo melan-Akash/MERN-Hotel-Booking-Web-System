@@ -33,3 +33,12 @@ export const protect = async (req, res, next) => {
     res.json({ success: false, message: "Not authorized, token invalid" });
   }
 };
+
+// Middleware to check if user is admin
+export const isAdmin = async (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    res.json({ success: false, message: "Access denied. Admins only." });
+  }
+};

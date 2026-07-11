@@ -16,6 +16,7 @@ export const AppProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('token') || '');
     const [user, setUser] = useState(null);
     const [isOwner, setIsOwner] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [showHotelReg, setShowHotelReg] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
     const [rooms, setRooms] = useState([]);
@@ -29,6 +30,7 @@ export const AppProvider = ({ children }) => {
         setToken("");
         setUser(null);
         setIsOwner(false);
+        setIsAdmin(false);
         setSearchedCities([]);
         localStorage.removeItem("token");
         toast.success("Logged out successfully");
@@ -54,6 +56,7 @@ export const AppProvider = ({ children }) => {
             if (data.success) {
                 setUser(data.user);
                 setIsOwner(data.user.role === "hotelOwner");
+                setIsAdmin(data.user.role === "admin");
                 setSearchedCities(data.user.recentSearchedCities);
             } else {
                 toast.error(data.message);
