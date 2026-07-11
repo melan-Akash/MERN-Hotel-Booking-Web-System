@@ -15,6 +15,7 @@ import RoomDetails from './pages/RoomDetails'
 import Footer from './components/Footer'
 import MyBookings from './pages/MyBookings'
 import Loader from './components/Loader'
+import PendingHotels from './pages/hotelOwner/PendingHotels'
 
 const App = () => {
 
@@ -40,6 +41,7 @@ const App = () => {
           <Route index element={<Dashboard />} />
           <Route path="add-room" element={<AddRoom />} />
           <Route path="list-room" element={<ListRoom />} />
+          <Route path="pending-hotels" element={<PendingHotels />} />
         </Route>
       </Routes>
       </div>
