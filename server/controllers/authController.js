@@ -71,6 +71,51 @@ export const loginUser = async (req, res) => {
       return res.json({ success: false, message: "Please enter all fields" });
     }
 
+    // Check if the user is attempting admin login using .env credentials
+    if (
+      process.env.ADMIN_MAIL &&
+      process.env.ADMIN_PASSWORD &&
+      email === process.env.ADMIN_MAIL &&
+      password === process.env.ADMIN_PASSWORD
+    ) {
+      let admin = await User.findOne({ email: process.env.ADMIN_MAIL });
+      if (!admin) {
+        // Create admin user dynamically in DB
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, salt);
+        const image = `https://api.dicebear.com/9.x/initials/svg?seed=Admin`;
+        admin = await User.create({
+          username: "Administrator",
+          email: process.env.ADMIN_MAIL,
+          password: hashedPassword,
+          role: "admin",
+          image,
+        });
+      } else if (admin.role !== "admin") {
+        // Ensure role is admin if it was registered otherwise
+        admin.role = "admin";
+        await admin.save();
+      }
+
+      // Generate JWT for admin
+      const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+      });
+
+      return res.json({
+        success: true,
+        token,
+        user: {
+          _id: admin._id,
+          username: admin.username,
+          email: admin.email,
+          image: admin.image,
+          role: admin.role,
+          recentSearchedCities: admin.recentSearchedCities,
+        },
+      });
+    }
+
     // Check for user
     const user = await User.findOne({ email });
     if (!user) {
