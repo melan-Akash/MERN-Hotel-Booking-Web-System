@@ -122,11 +122,23 @@ export const getUserBookings = async (req, res) => {
 
 export const getHotelBookings = async (req, res) => {
   try {
-    const hotel = await Hotel.findOne({ owner: req.user._id });
-    if (!hotel) {
-      return res.json({ success: false, message: "No Hotel found" });
+    let bookings;
+
+    if (req.user.role === "admin") {
+      // Admin views all bookings across the entire system
+      bookings = await Booking.find().populate("room hotel user").sort({ createdAt: -1 });
+    } else {
+      const hotel = await Hotel.findOne({ owner: req.user._id });
+      if (!hotel) {
+        // Return 0 stats for users/pending owners without active hotels to avoid dashboard crashes
+        return res.json({
+          success: true,
+          dashboardData: { totalBookings: 0, totalRevenue: 0, bookings: [] }
+        });
+      }
+      bookings = await Booking.find({ hotel: hotel._id }).populate("room hotel user").sort({ createdAt: -1 });
     }
-    const bookings = await Booking.find({ hotel: hotel._id }).populate("room hotel user").sort({ createdAt: -1 });
+
     // Total Bookings
     const totalBookings = bookings.length;
     // Total Revenue
@@ -134,6 +146,7 @@ export const getHotelBookings = async (req, res) => {
 
     res.json({ success: true, dashboardData: { totalBookings, totalRevenue, bookings } });
   } catch (error) {
+    console.error("getHotelBookings Error:", error.message);
     res.json({ success: false, message: "Failed to fetch bookings" });
   }
 };
