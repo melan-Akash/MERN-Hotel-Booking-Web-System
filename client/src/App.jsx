@@ -14,6 +14,8 @@ import RoomDetails from './pages/RoomDetails'
 import Footer from './components/Footer'
 import MyBookings from './pages/MyBookings'
 import Loader from './components/Loader'
+import Login from './pages/Login'
+import Register from './pages/Register'
 
 const App = () => {
 
@@ -32,8 +34,10 @@ const App = () => {
         <Route path='/' element={<Home />} />
         <Route path='/rooms' element={<AllRooms />} />
         <Route path='/rooms/:id' element={<RoomDetails />} />
-        <Route path='my-bookings' element={<MyBookings />} />
-        < Route path="/loader/:nextUrl" element={<Loader />} />
+        <Route path='/my-bookings' element={<MyBookings />} />
+        <Route path="/loader/:nextUrl" element={<Loader />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
         <Route path="/owner" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="add-room" element={<AddRoom />} />

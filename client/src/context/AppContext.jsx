@@ -1,4 +1,3 @@
-import { useAuth, useUser } from "@clerk/clerk-react";
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from 'react-hot-toast'
@@ -13,13 +12,27 @@ export const AppProvider = ({ children }) => {
 
     const currency = import.meta.env.VITE_CURRENCY || "$";
     const navigate = useNavigate();
-    const { user } = useUser();
-    const { getToken } = useAuth()
 
+    const [token, setToken] = useState(localStorage.getItem('token') || '');
+    const [user, setUser] = useState(null);
     const [isOwner, setIsOwner] = useState(false);
     const [showHotelReg, setShowHotelReg] = useState(false);
     const [rooms, setRooms] = useState([]);
     const [searchedCities, setSearchedCities] = useState([]); // max 3 recent searched cities
+
+    const getToken = async () => {
+        return token;
+    };
+
+    const logout = () => {
+        setToken("");
+        setUser(null);
+        setIsOwner(false);
+        setSearchedCities([]);
+        localStorage.removeItem("token");
+        toast.success("Logged out successfully");
+        navigate("/");
+    };
 
     const facilityIcons = {
         "Free WiFi": assets.freeWifiIcon,
@@ -29,21 +42,25 @@ export const AppProvider = ({ children }) => {
         "Pool Access": assets.poolIcon,
     };
 
-    const fetchUser = async () => {
+    const fetchUser = async (activeToken) => {
+        const currentToken = activeToken || token;
+        if (!currentToken) return;
+
         try {
-            const { data } = await axios.get('/api/user', { headers: { Authorization: `Bearer ${await getToken()}` } })
+            const { data } = await axios.get('/api/user', { 
+                headers: { Authorization: `Bearer ${currentToken}` } 
+            });
             if (data.success) {
-                setIsOwner(data.role === "hotelOwner");
-                setSearchedCities(data.recentSearchedCities)
+                setUser(data.user);
+                setIsOwner(data.user.role === "hotelOwner");
+                setSearchedCities(data.user.recentSearchedCities);
             } else {
-                // Retry Fetching User Details after 5 seconds
-                // Useful when user creates account using email & password
-                setTimeout(() => {
-                    fetchUser();
-                }, 2000);
+                toast.error(data.message);
+                logout();
             }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.message);
+            logout();
         }
     }
 
@@ -62,10 +79,15 @@ export const AppProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        if (user) {
-            fetchUser();
+        if (token) {
+            localStorage.setItem('token', token);
+            fetchUser(token);
+        } else {
+            localStorage.removeItem('token');
+            setUser(null);
+            setIsOwner(false);
         }
-    }, [user]);
+    }, [token]);
 
     useEffect(() => {
         fetchRooms();
@@ -73,7 +95,9 @@ export const AppProvider = ({ children }) => {
 
     const value = {
         currency, navigate,
-        user, getToken,
+        user, setUser,
+        token, setToken,
+        getToken, logout,
         isOwner, setIsOwner,
         axios,
         showHotelReg, setShowHotelReg,
