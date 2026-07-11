@@ -7,6 +7,7 @@ import Dashboard from './pages/hotelOwner/Dashboard'
 import AddRoom from './pages/hotelOwner/AddRoom'
 import ListRoom from './pages/hotelOwner/ListRoom'
 import HotelReg from './components/HotelReg'
+import LoginPopup from './components/LoginPopup'
 import { useAppContext } from './context/AppContext'
 import { Toaster } from 'react-hot-toast'
 import AllRooms from './pages/AllRooms'
@@ -14,21 +15,20 @@ import RoomDetails from './pages/RoomDetails'
 import Footer from './components/Footer'
 import MyBookings from './pages/MyBookings'
 import Loader from './components/Loader'
-import Login from './pages/Login'
-import Register from './pages/Register'
 
 const App = () => {
 
   // Check Is Route Starts With Owner
   const isOwnerPath = useLocation().pathname.includes("owner");
 
-  const { showHotelReg } = useAppContext();
+  const { showHotelReg, showLogin } = useAppContext();
 
   return (
     <div className='font-inter'>
       <Toaster />
       {!isOwnerPath && <Navbar />}
       {showHotelReg && <HotelReg />}
+      {showLogin && <LoginPopup />}
       <div className='min-h-[70vh]'>
       <Routes>
         <Route path='/' element={<Home />} />
@@ -36,8 +36,6 @@ const App = () => {
         <Route path='/rooms/:id' element={<RoomDetails />} />
         <Route path='/my-bookings' element={<MyBookings />} />
         <Route path="/loader/:nextUrl" element={<Loader />} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/register' element={<Register />} />
         <Route path="/owner" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="add-room" element={<AddRoom />} />

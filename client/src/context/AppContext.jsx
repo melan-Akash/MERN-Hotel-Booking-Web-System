@@ -17,6 +17,7 @@ export const AppProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isOwner, setIsOwner] = useState(false);
     const [showHotelReg, setShowHotelReg] = useState(false);
+    const [showLogin, setShowLogin] = useState(false);
     const [rooms, setRooms] = useState([]);
     const [searchedCities, setSearchedCities] = useState([]); // max 3 recent searched cities
 
@@ -101,6 +102,7 @@ export const AppProvider = ({ children }) => {
         isOwner, setIsOwner,
         axios,
         showHotelReg, setShowHotelReg,
+        showLogin, setShowLogin,
         facilityIcons,
         rooms, setRooms,
         searchedCities, setSearchedCities
