@@ -23,7 +23,7 @@ const Navbar = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const location = useLocation();
 
-    const { user, setShowHotelReg, isOwner, navigate, logout } = useAppContext()
+    const { user, setShowHotelReg, isOwner, navigate, logout, setShowLogin } = useAppContext()
 
     useEffect(() => {
         if (location.pathname !== "/") {
@@ -153,7 +153,7 @@ const Navbar = () => {
                         )}
                     </div>
                 ) : (
-                    <button onClick={() => navigate('/login')} className="bg-black text-white px-8 py-2.5 rounded-full ml-4 transition-all duration-500 cursor-pointer hover:bg-slate-900 shadow-md">
+                    <button onClick={() => setShowLogin(true)} className="bg-black text-white px-8 py-2.5 rounded-full ml-4 transition-all duration-500 cursor-pointer hover:bg-slate-900 shadow-md">
                         Login
                     </button>
                 )}
@@ -218,7 +218,7 @@ const Navbar = () => {
                         )}
                     </div>
                 ) : (
-                    <button onClick={() => navigate('/login')} className="bg-black text-white px-5 py-1.5 text-sm rounded-full cursor-pointer hover:bg-slate-900">
+                    <button onClick={() => setShowLogin(true)} className="bg-black text-white px-5 py-1.5 text-sm rounded-full cursor-pointer hover:bg-slate-900">
                         Login
                     </button>
                 )}
@@ -251,7 +251,7 @@ const Navbar = () => {
                 )}
 
                 {!user && (
-                    <button onClick={() => { setIsMenuOpen(false); navigate('/login'); }} className="bg-black text-white px-8 py-2.5 rounded-full cursor-pointer" >
+                    <button onClick={() => { setIsMenuOpen(false); setShowLogin(true); }} className="bg-black text-white px-8 py-2.5 rounded-full cursor-pointer" >
                         Login
                     </button>
                 )}
