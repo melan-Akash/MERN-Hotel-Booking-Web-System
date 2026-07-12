@@ -12,7 +12,7 @@ const bookingSchema = new Schema(
     guests: { type: Number, required: true },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "cancelled"],
+      enum: ["pending", "confirmed", "checked-in", "checked-out", "cancelled"],
       default: "pending",
     },
     paymentMethod: {

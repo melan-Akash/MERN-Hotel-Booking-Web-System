@@ -25,6 +25,12 @@ const hotelSchema = new Schema(
       checkOutTime: { type: String, required: true }
     },
 
+    // Map location coordinates
+    location: {
+      lat: { type: Number, required: true },
+      lng: { type: Number, required: true }
+    },
+
     // Pending updates for Admin Approval workflow
     pendingUpdates: { type: Object, default: null }
   },

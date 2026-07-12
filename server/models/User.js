@@ -8,6 +8,10 @@ const userSchema = mongoose.Schema(
     image: { type: String, default: "" },
     role: { type: String, enum: ["user", "hotelOwner", "admin"], default: "user" },
     recentSearchedCities: [{ type: String, default: [] }],
+    
+    // Account Management (Suspension workflow)
+    isSuspended: { type: Boolean, default: false },
+    suspensionReason: { type: String, default: "" }
   }, { timestamps: true }
 );
 
