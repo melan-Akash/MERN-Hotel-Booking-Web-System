@@ -16,7 +16,9 @@ export const registerHotel = async (req, res) => {
       starRating, 
       checkInTime, 
       checkOutTime, 
-      hotelAmenities 
+      hotelAmenities,
+      lat,
+      lng
     } = req.body;
     
     const owner = req.user._id;
@@ -60,6 +62,10 @@ export const registerHotel = async (req, res) => {
       policies: {
         checkInTime,
         checkOutTime
+      },
+      location: {
+        lat: Number(lat || 6.9271),
+        lng: Number(lng || 79.8612)
       },
       isApproved: false
     });

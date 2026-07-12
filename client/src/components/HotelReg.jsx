@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 import { assets, cities } from "../assets/assets";
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const HotelReg = () => {
     const { setShowHotelReg, axios, getToken } = useAppContext();
@@ -11,7 +13,7 @@ const HotelReg = () => {
     const [contact, setContact] = useState("");
     const [city, setCity] = useState("");
     
-    // New Upgraded Fields
+    // Upgraded Fields
     const [description, setDescription] = useState("");
     const [propertyType, setPropertyType] = useState("Hotel");
     const [coverImage, setCoverImage] = useState(null);
@@ -21,7 +23,74 @@ const HotelReg = () => {
     const [checkInTime, setCheckInTime] = useState("14:00");
     const [checkOutTime, setCheckOutTime] = useState("12:00");
 
+    // Coordinates states (Default to Colombo, Sri Lanka)
+    const [lat, setLat] = useState(6.9271);
+    const [lng, setLng] = useState(79.8612);
+
+    const mapRef = useRef(null);
+    const markerRef = useRef(null);
+
     const amenitiesList = ['Parking', 'Restaurant', 'Spa', 'Gym', 'Pool'];
+
+    const cityCoordinates = {
+        "Dubai": [25.2048, 55.2708],
+        "Singapore": [1.3521, 103.8198],
+        "New York": [40.7128, -74.0060],
+        "London": [51.5074, -0.1278]
+    };
+
+    useEffect(() => {
+        const mapContainer = document.getElementById('map-reg');
+        if (!mapContainer) return;
+
+        // Initialize Leaflet map
+        const map = L.map('map-reg').setView([lat, lng], 13);
+        mapRef.current = map;
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Custom marker icons setup to resolve webpack bundling path conflicts
+        delete L.Icon.Default.prototype._getIconUrl;
+        L.Icon.Default.mergeOptions({
+            iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+        });
+
+        const marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+        markerRef.current = marker;
+
+        // Sync coordinates when dragging marker pin
+        marker.on('dragend', () => {
+            const position = marker.getLatLng();
+            setLat(position.lat);
+            setLng(position.lng);
+        });
+
+        // Sync coordinates when clicking map area
+        map.on('click', (e) => {
+            marker.setLatLng(e.latlng);
+            setLat(e.latlng.lat);
+            setLng(e.latlng.lng);
+        });
+
+        return () => {
+            map.remove();
+        };
+    }, []);
+
+    const handleCityChange = (selectedCity) => {
+        setCity(selectedCity);
+        const coords = cityCoordinates[selectedCity];
+        if (coords && mapRef.current && markerRef.current) {
+            setLat(coords[0]);
+            setLng(coords[1]);
+            mapRef.current.setView(coords, 13);
+            markerRef.current.setLatLng(coords);
+        }
+    };
 
     const handleAmenityChange = (amenity) => {
         setHotelAmenities(prev => 
@@ -58,6 +127,10 @@ const HotelReg = () => {
             formData.append("checkOutTime", checkOutTime);
             formData.append("coverImage", coverImage);
             formData.append("hotelAmenities", JSON.stringify(hotelAmenities));
+            
+            // Append map coordinates
+            formData.append("lat", lat);
+            formData.append("lng", lng);
 
             const { data } = await axios.post(`/api/hotels/`, formData, { 
                 headers: { 
@@ -82,7 +155,7 @@ const HotelReg = () => {
             <form 
                 onSubmit={onSubmitHandler} 
                 onClick={(e) => e.stopPropagation()} 
-                className="flex flex-col md:flex-row bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative animate-fadeIn"
+                className="flex flex-col md:flex-row bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative"
             >
                 {/* Left Side: Illustrative / Image Preview */}
                 <div className="md:w-2/5 bg-slate-900 text-white p-8 md:p-10 flex flex-col justify-between rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none min-h-[260px] md:min-h-full relative overflow-hidden">
@@ -110,7 +183,7 @@ const HotelReg = () => {
                             <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-xl mt-6">
                                 <p className="text-xs text-sky-300 uppercase font-semibold">Live Preview</p>
                                 <p className="text-lg font-playfair font-bold mt-1 truncate">{name || "Your Hotel Name"}</p>
-                                <p className="text-xs text-slate-300 mt-0.5 truncate">{city ? `${city}, Sri Lanka` : "City Not Specified"}</p>
+                                <p className="text-xs text-slate-300 mt-0.5 truncate">{city ? `${city}` : "City Not Specified"}</p>
                             </div>
                         )}
                     </div>
@@ -152,7 +225,7 @@ const HotelReg = () => {
                                     className="border border-gray-200 rounded-lg w-full px-3 py-2 mt-1.5 outline-indigo-500 font-light text-sm bg-slate-50 focus:bg-white transition-colors" 
                                     type="text" 
                                     required 
-                                />
+                            />
                             </div>
 
                             {/* Property Type Selection */}
@@ -203,7 +276,7 @@ const HotelReg = () => {
                             <div>
                                 <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">City</label>
                                 <select 
-                                    onChange={(e) => setCity(e.target.value)} 
+                                    onChange={(e) => handleCityChange(e.target.value)} 
                                     value={city} 
                                     className="border border-gray-200 rounded-lg w-full px-3 py-2 mt-1.5 outline-indigo-500 font-light text-sm bg-slate-50 focus:bg-white transition-colors" 
                                     required
@@ -258,6 +331,16 @@ const HotelReg = () => {
                             </div>
                         </div>
 
+                        {/* Leaflet Map Pin Drop */}
+                        <div className="border-t border-slate-100 pt-4">
+                            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">Pin Hotel Location on Map</label>
+                            <div id="map-reg" className="w-full h-52 rounded-xl border border-gray-200 shadow-inner z-0" />
+                            <div className="flex gap-4 mt-2.5 text-xs text-gray-500 font-light">
+                                <div>Latitude: <span className="font-semibold text-gray-700">{lat.toFixed(6)}</span></div>
+                                <div>Longitude: <span className="font-semibold text-gray-700">{lng.toFixed(6)}</span></div>
+                            </div>
+                        </div>
+
                         {/* Amenities Checkboxes */}
                         <div className="border-t border-slate-100 pt-4">
                             <p className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-3">Amenities Offered</p>
@@ -300,7 +383,7 @@ const HotelReg = () => {
                     </div>
 
                     {/* Submit Button */}
-                    <button className="bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-6 py-2.5 rounded-lg shadow cursor-pointer transition-all hover:shadow-md mt-8 w-full">
+                    <button className="bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-6 py-2.5 rounded-lg shadow cursor-pointer transition-all hover:shadow-md mt-8 w-full animate-pulse-slow">
                         Submit Registration
                     </button>
                 </div>
