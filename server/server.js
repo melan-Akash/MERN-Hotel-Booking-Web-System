@@ -11,6 +11,7 @@ import bookingRouter from "./routes/bookingRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
 import messageRouter from "./routes/messageRoutes.js";
+import reviewRouter from "./routes/reviewRoutes.js";
 import Message from "./models/Message.js";
 import connectCloudinary from "./configs/cloudinary.js";
 import { stripeWebhooks } from "./controllers/stripeWebhooks.js";
@@ -76,6 +77,7 @@ app.use("/api/hotels", hotelRouter);
 app.use("/api/rooms", roomRouter);
 app.use("/api/bookings", bookingRouter);
 app.use("/api/messages", messageRouter);
+app.use("/api/reviews", reviewRouter);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

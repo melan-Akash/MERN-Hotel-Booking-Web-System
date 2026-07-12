@@ -56,15 +56,26 @@ export const createBooking = async (req, res) => {
 
     // Get totalPrice from Room
     const roomData = await Room.findById(room).populate("hotel");
-    let totalPrice = roomData.pricePerNight;
-
-    // Calculate totalPrice based on nights
+    
+    // Calculate totalPrice based on calendar overrides per night
+    let totalPrice = 0;
     const checkIn = new Date(checkInDate);
     const checkOut = new Date(checkOutDate);
-    const timeDiff = checkOut.getTime() - checkIn.getTime();
-    const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    
+    let currentCursor = new Date(checkIn);
+    while (currentCursor < checkOut) {
+      // Stringify YYYY-MM-DD
+      const offset = currentCursor.getTimezoneOffset();
+      const adjusted = new Date(currentCursor.getTime() - (offset * 60 * 1000));
+      const dateStr = adjusted.toISOString().split("T")[0];
 
-    totalPrice *= nights;
+      // Find price override for this date
+      const override = roomData.priceOverrides?.find(o => o.date === dateStr);
+      const dayPrice = override ? override.price : roomData.pricePerNight;
+      
+      totalPrice += dayPrice;
+      currentCursor.setDate(currentCursor.getDate() + 1);
+    }
 
     const booking = await Booking.create({
       user,
@@ -194,4 +205,35 @@ export const stripePayment = async (req, res) => {
   } catch (error) {
     res.json({ success: false, message: "Payment Failed" });
   }
-}
+};
+
+// @desc    Update booking status (Pending, Confirmed, Checked-in, Checked-out, Cancelled)
+// @route   POST /api/bookings/update-status
+// @access  Private/Owner/Admin
+export const updateBookingStatus = async (req, res) => {
+  try {
+    const { bookingId, status } = req.body;
+    
+    const validStatuses = ["pending", "confirmed", "checked-in", "checked-out", "cancelled"];
+    if (!validStatuses.includes(status)) {
+      return res.json({ success: false, message: "Invalid status value." });
+    }
+
+    const booking = await Booking.findById(bookingId).populate("hotel");
+    if (!booking) {
+      return res.json({ success: false, message: "Booking not found." });
+    }
+
+    // Verify authorized party: admin, or the owner of the hotel
+    if (req.user.role !== "admin" && booking.hotel.owner.toString() !== req.user._id.toString()) {
+      return res.json({ success: false, message: "Unauthorized action." });
+    }
+
+    booking.status = status;
+    await booking.save();
+
+    res.json({ success: true, message: `Booking status updated to ${status} successfully.` });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};

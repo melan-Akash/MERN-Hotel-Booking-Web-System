@@ -10,13 +10,19 @@ const Sidebar = () => {
         { name: "Dashboard", path: "/owner", icon: assets.dashboardIcon },
         { name: "Add Room", path: "/owner/add-room", icon: assets.addIcon },
         { name: "List Room", path: "/owner/list-room", icon: assets.listIcon },
+        { name: "Manage Bookings", path: "/owner/manage-bookings", icon: assets.listIcon },
+        { name: "Pricing Calendar", path: "/owner/pricing-calendar", icon: assets.listIcon },
+        { name: "Guest Messages", path: "/owner/guest-messages", icon: assets.listIcon },
     ];
 
     const linksToRender = isAdmin 
         ? [
             ...sidebarLinks, 
             { name: "Pending Hotels", path: "/owner/pending-hotels", icon: assets.listIcon },
-            { name: "Pending Updates", path: "/owner/pending-updates", icon: assets.listIcon }
+            { name: "Pending Updates", path: "/owner/pending-updates", icon: assets.listIcon },
+            { name: "Global Analytics", path: "/owner/global-analytics", icon: assets.listIcon },
+            { name: "User Management", path: "/owner/user-management", icon: assets.listIcon },
+            { name: "Review Moderation", path: "/owner/review-moderation", icon: assets.listIcon }
           ]
         : [
             ...sidebarLinks,

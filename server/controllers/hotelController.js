@@ -1,5 +1,6 @@
 import Hotel from "../models/Hotel.js";
 import User from "../models/User.js";
+import Booking from "../models/Booking.js";
 import { v2 as cloudinary } from "cloudinary";
 
 // API to create a new hotel
@@ -153,6 +154,35 @@ export const requestHotelUpdate = async (req, res) => {
     await hotel.save();
 
     res.json({ success: true, message: "Update request submitted. Pending admin approval." });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Get all unique guests who have booked rooms in the owner's hotel
+// @route   GET /api/hotels/owner/guests
+// @access  Private/Owner
+export const getHotelGuests = async (req, res) => {
+  try {
+    const hotel = await Hotel.findOne({ owner: req.user._id });
+    if (!hotel) {
+      return res.json({ success: false, message: "Hotel not found" });
+    }
+
+    // Find all bookings for this hotel and populate user details
+    const bookings = await Booking.find({ hotel: hotel._id }).populate("user", "username email image");
+
+    // Extract unique users
+    const guestsMap = {};
+    bookings.forEach(booking => {
+      if (booking.user) {
+        guestsMap[booking.user._id.toString()] = booking.user;
+      }
+    });
+
+    const guests = Object.values(guestsMap);
+
+    res.json({ success: true, guests, hotelId: hotel._id });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }

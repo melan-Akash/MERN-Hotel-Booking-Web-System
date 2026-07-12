@@ -18,6 +18,12 @@ import Loader from './components/Loader'
 import PendingHotels from './pages/hotelOwner/PendingHotels'
 import UpdateHotel from './pages/hotelOwner/UpdateHotel'
 import PendingUpdates from './pages/hotelOwner/PendingUpdates'
+import ManageBookings from './pages/hotelOwner/ManageBookings'
+import PricingCalendar from './pages/hotelOwner/PricingCalendar'
+import GuestMessages from './pages/hotelOwner/GuestMessages'
+import GlobalAnalytics from './pages/hotelOwner/GlobalAnalytics'
+import UserManagement from './pages/hotelOwner/UserManagement'
+import ReviewModeration from './pages/hotelOwner/ReviewModeration'
 
 const App = () => {
 
@@ -46,6 +52,12 @@ const App = () => {
           <Route path="pending-hotels" element={<PendingHotels />} />
           <Route path="update-hotel" element={<UpdateHotel />} />
           <Route path="pending-updates" element={<PendingUpdates />} />
+          <Route path="manage-bookings" element={<ManageBookings />} />
+          <Route path="pricing-calendar" element={<PricingCalendar />} />
+          <Route path="guest-messages" element={<GuestMessages />} />
+          <Route path="global-analytics" element={<GlobalAnalytics />} />
+          <Route path="user-management" element={<UserManagement />} />
+          <Route path="review-moderation" element={<ReviewModeration />} />
         </Route>
       </Routes>
       </div>

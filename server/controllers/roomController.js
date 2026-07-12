@@ -83,3 +83,70 @@ export const toggleRoomAvailability = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+// @desc    Get room pricing data including overrides
+// @route   GET /api/rooms/:roomId/pricing
+// @access  Private/Owner
+export const getRoomPricing = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const room = await Room.findById(roomId).populate("hotel");
+    if (!room) {
+      return res.json({ success: false, message: "Room not found" });
+    }
+
+    // Verify owner or admin
+    if (room.hotel.owner.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+      return res.json({ success: false, message: "Unauthorized access" });
+    }
+
+    res.json({ 
+      success: true, 
+      pricePerNight: room.pricePerNight, 
+      priceOverrides: room.priceOverrides || [] 
+    });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Add, update, or remove a room pricing override
+// @route   POST /api/rooms/:roomId/pricing
+// @access  Private/Owner
+export const updateRoomPricingOverride = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const { date, price } = req.body; // date format: YYYY-MM-DD, price: Number
+
+    const room = await Room.findById(roomId).populate("hotel");
+    if (!room) {
+      return res.json({ success: false, message: "Room not found" });
+    }
+
+    // Verify owner or admin
+    if (room.hotel.owner.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+      return res.json({ success: false, message: "Unauthorized access" });
+    }
+
+    // If price is null or equals default price per night, we clear the override
+    if (price === null || price === undefined || Number(price) === room.pricePerNight) {
+      room.priceOverrides = room.priceOverrides.filter(o => o.date !== date);
+    } else {
+      const overrideIndex = room.priceOverrides.findIndex(o => o.date === date);
+      if (overrideIndex > -1) {
+        room.priceOverrides[overrideIndex].price = Number(price);
+      } else {
+        room.priceOverrides.push({ date, price: Number(price) });
+      }
+    }
+
+    await room.save();
+    res.json({ 
+      success: true, 
+      message: "Room pricing overrides saved successfully", 
+      priceOverrides: room.priceOverrides 
+    });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
