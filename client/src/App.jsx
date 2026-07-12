@@ -16,6 +16,8 @@ import Footer from './components/Footer'
 import MyBookings from './pages/MyBookings'
 import Loader from './components/Loader'
 import PendingHotels from './pages/hotelOwner/PendingHotels'
+import UpdateHotel from './pages/hotelOwner/UpdateHotel'
+import PendingUpdates from './pages/hotelOwner/PendingUpdates'
 
 const App = () => {
 
@@ -42,6 +44,8 @@ const App = () => {
           <Route path="add-room" element={<AddRoom />} />
           <Route path="list-room" element={<ListRoom />} />
           <Route path="pending-hotels" element={<PendingHotels />} />
+          <Route path="update-hotel" element={<UpdateHotel />} />
+          <Route path="pending-updates" element={<PendingUpdates />} />
         </Route>
       </Routes>
       </div>

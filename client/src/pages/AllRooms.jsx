@@ -108,10 +108,38 @@ const AllRooms = () => {
         return room.hotel.city.toLowerCase().includes(destination.toLowerCase());
     }
 
+    // Filter Property Type
+    const filterPropertyType = (room) => {
+        const propertyType = searchParams.get('propertyType');
+        if (!propertyType) return true;
+        
+        const hotelName = (room.hotel?.name || "").toLowerCase();
+        const hotelAddress = (room.hotel?.address || "").toLowerCase();
+        const hotelCity = (room.hotel?.city || "").toLowerCase();
+        const roomType = (room.roomType || "").toLowerCase();
+        
+        if (propertyType === 'Luxury Resorts') {
+            return roomType.includes('luxury') || roomType.includes('suite') || hotelName.includes('resort') || hotelName.includes('suites');
+        }
+        if (propertyType === 'Villas') {
+            return hotelName.includes('villa');
+        }
+        if (propertyType === 'Cabins') {
+            return hotelName.includes('cabin') || hotelName.includes('lodge') || hotelName.includes('cottage');
+        }
+        if (propertyType === 'Beachfront Houses') {
+            return hotelName.includes('beach') || hotelAddress.includes('beach') || hotelName.includes('house') || hotelName.includes('coast') || hotelName.includes('ocean') || hotelCity.includes('mirissa');
+        }
+        if (propertyType === 'Hotels') {
+            return hotelName.includes('hotel') || hotelName.includes('suites') || (!hotelName.includes('villa') && !hotelName.includes('cabin') && !hotelName.includes('lodge') && !hotelName.includes('resort') && !hotelName.includes('cottage'));
+        }
+        return true;
+    }
+
     // Filter and sort rooms based on the selected filters and sort option
     const filteredRooms = useMemo(() => {
         return rooms
-            .filter(room => matchesRoomType(room) && matchesPriceRange(room) && filterDestination(room))
+            .filter(room => matchesRoomType(room) && matchesPriceRange(room) && filterDestination(room) && filterPropertyType(room))
             .sort(sortRooms);
     }, [rooms, selectedFilters, selectedSort, searchParams]);
 
@@ -130,8 +158,20 @@ const AllRooms = () => {
             <div>
                 {/* Main Title */}
                 <div className="flex flex-col items-start text-left">
-                    <h1 className='font-playfair text-4xl md:text-[40px]'>Hotel Rooms</h1>
+                    <h1 className='font-playfair text-4xl md:text-[40px]'>
+                        {searchParams.get('propertyType') ? `${searchParams.get('propertyType')}` : "Hotel Rooms"}
+                    </h1>
                     <p className='text-sm md:text-base text-gray-500/90 mt-2 max-w-174'>Take advantage of our limited-time offers and special packages to enhance your stay and create unforgettable memories.</p>
+                    {searchParams.get('propertyType') && (
+                        <div className="flex items-center gap-2 mt-4 px-3 py-1 bg-slate-100 hover:bg-slate-200 text-gray-700 text-sm font-medium rounded-full cursor-pointer transition-colors" onClick={() => {
+                            const newParams = new URLSearchParams(searchParams);
+                            newParams.delete('propertyType');
+                            setSearchParams(newParams);
+                        }}>
+                            <span>Type: {searchParams.get('propertyType')}</span>
+                            <span className="text-gray-400 hover:text-gray-600 font-bold ml-1">×</span>
+                        </div>
+                    )}
                 </div>
 
                 {filteredRooms.map((room) => (

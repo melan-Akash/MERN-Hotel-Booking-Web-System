@@ -13,8 +13,15 @@ const Sidebar = () => {
     ];
 
     const linksToRender = isAdmin 
-        ? [...sidebarLinks, { name: "Pending Hotels", path: "/owner/pending-hotels", icon: assets.listIcon }]
-        : sidebarLinks;
+        ? [
+            ...sidebarLinks, 
+            { name: "Pending Hotels", path: "/owner/pending-hotels", icon: assets.listIcon },
+            { name: "Pending Updates", path: "/owner/pending-updates", icon: assets.listIcon }
+          ]
+        : [
+            ...sidebarLinks,
+            { name: "Update Hotel", path: "/owner/update-hotel", icon: assets.listIcon }
+          ];
 
     return (
         <div className="md:w-64 w-16 border-r h-full text-base border-gray-300 pt-4 flex flex-col transition-all duration-300 font-outfit">
